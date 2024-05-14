@@ -7,6 +7,7 @@ This is an experimental branch of Blooket Cheats that use a custom compiler and 
 * No more manually updating cheats!
 * Firefox users no longer have to worry about the max bookmark limit
 * All cheats can now be ran by the same script, just by changing one value
+* Anti-Anti-Cheat by [CryptoDude3](https://github.com/CryptoDude3/)
 
 ### How do I get started?
 If you like to use the Devtools console, copy the script found in [run.js](/run.js), or if you like or can only use bookmarks, copy [run.min.js](/run.min.js) and replace
