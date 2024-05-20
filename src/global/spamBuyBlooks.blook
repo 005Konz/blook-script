@@ -1,5 +1,5 @@
 if (window.location.pathname.startsWith("/market")) {
-    let prices = Array.prototype.reduce.call(document.querySelectorAll("[class*='packsWrapper'] > div"), (a, b) => {
+    let prices = Array.prototype.reduce.call(queryElementAll("[class*='packsWrapper'] > div"), (a, b) => {
         if (!b.querySelector("[class*='blookContainer'] > img")) a[b.querySelector("[class*='packImgContainer'] > img").alt] = parseInt(b.querySelector("[class*='packBottom']").textContent);
         return a;
     }, {});
