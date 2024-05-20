@@ -94,39 +94,39 @@ const toRun = "gold/setGold";
             this.source = source;
         }
         StringExpr() {
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             const str = this.source.slice(this.ind, this.ind + size);
             this.ind += size;
             return str;
         }
         NumberExpr() {
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             let num = 0;
             for (let i = 0; i < size; i++) {
-                num += this.source.charCodeAt(this.ind++) * Math.pow(65536, i);
+                num += this.code(this.ind++) * Math.pow(65536, i);
             }
             return num;
         }
         FloatExpr() {
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             const str = this.source.slice(this.ind, this.ind + size);
             this.ind += size;
             return parseFloat(str);
         }
         SymbolExpr(env) {
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             const str = this.source.slice(this.ind, this.ind + size);
             this.ind += size;
             return env.lookupVar(str);
         }
         BlockStmt(env) {
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) this.evaluate(env);
         }
         VarDeclStmt(env) {
             const name = this.evaluate(env);
-            const isConstant = this.source.charCodeAt(this.ind++) == 1;
-            const value = this.source.charCodeAt(this.ind++) == 1 ? this.evaluate(env) : null;
+            const isConstant = this.code(this.ind++) == 1;
+            const value = this.code(this.ind++) == 1 ? this.evaluate(env) : null;
             return env.declareVar(name, value, isConstant);
         }
         ExpressionStmt(env) {
@@ -141,14 +141,14 @@ const toRun = "gold/setGold";
         }
         AssignmentExpr(env) {
 
-            const type = Types[this.source.charCodeAt(this.ind++)];
+            const type = Types[this.code(this.ind++)];
             if (type == "MemberExpr") {
                 let assignee = this.evaluate(env);
                 const property = this.evaluate(env);
                 return assignee[property] = assignment_op(assignee[property], this.evaluate(env), this.evaluate(env));
             }
             if (type == "SymbolExpr") {
-                const size = this.source.charCodeAt(this.ind++);
+                const size = this.code(this.ind++);
                 const str = this.source.slice(this.ind, this.ind + size);
                 this.ind += size;
                 return env.assignVar(str, assignment_op(env.lookupVar(str), this.evaluate(env), this.evaluate(env)));
@@ -167,7 +167,7 @@ const toRun = "gold/setGold";
         }
         ObjectExpr(env) {
             const obj = {};
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
                 const key = this.evaluate(env);
                 obj[key] = this.evaluate(env);
@@ -252,7 +252,7 @@ const toRun = "gold/setGold";
             throw new Error(`Unknown binary operator ${operator}`);
         }
         SuffixExpr(env) {
-            if (this.source.charCodeAt(this.ind++) == Types.symbol_expr) {
+            if (this.code(this.ind++) == Types.symbol_expr) {
                 const assignee = this.StringExpr(env);
                 const operator = this.evaluate(env);
                 switch (operator) {
@@ -277,7 +277,7 @@ const toRun = "gold/setGold";
         CallExpr(env) {
             const callee = this.evaluate(env);
             const args = [];
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++)
                 args.push(this.evaluate(env));
             if (typeof callee == "function") {
@@ -290,7 +290,7 @@ const toRun = "gold/setGold";
             this.ind++;
             const name = this.StringExpr(env);
             const parameters = [];
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
                 this.ind++;
                 parameters.push(this.StringExpr(env));
@@ -299,13 +299,14 @@ const toRun = "gold/setGold";
             const here = this.ind;
             this.ind = this.findNext(Types.func_expr, Types.end_func);
 
+            const runtime = this;
             const fn = function () {
                 const fn_env = new Env(env);
                 fn_env.declareVar("arguments", arguments);
                 fn_env.declareVar("this", this);
                 for (const param in parameters) fn_env.declareVar(parameters[param], arguments[param]);
                 fn_env.declareVar("return", nil);
-                this.evaluateInd(fn_env, here);
+                runtime.evaluateInd(fn_env, here);
                 return fn_env.lookupVar("return");
             }
             if (name.length) env.declareVar(name, fn);
@@ -313,14 +314,14 @@ const toRun = "gold/setGold";
         }
         ArrayExpr(env) {
             const arr = [];
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
                 arr.push(this.evaluate(env));
             }
             return arr;
         }
         ReturnStmt(env) {
-            const ret = this.source.charCodeAt(this.ind++) == 1 ? this.evaluate(env) : null;
+            const ret = this.code(this.ind++) == 1 ? this.evaluate(env) : null;
             return env.assignVar("return", ret);
         }
         BreakStmt(env) {
@@ -335,12 +336,12 @@ const toRun = "gold/setGold";
             if (condition) {
                 this.evaluate(new Env(env));
                 this.ind++;
-                if (this.source.charCodeAt(this.ind++) == 1) {
+                if (this.code(this.ind++) == 1) {
                     this.ind = this.findNext(Types.else_stmt, Types.end_else);
                 }
             } else {
                 this.ind = elseLoc;
-                if (this.source.charCodeAt(this.ind++) == 1) {
+                if (this.code(this.ind++) == 1) {
                     this.ind++;
                     this.evaluate(new Env(env));
                     this.ind++;
@@ -365,7 +366,7 @@ const toRun = "gold/setGold";
         }
         GroupExpr(env) {
             let last;
-            const size = this.source.charCodeAt(this.ind++);
+            const size = this.code(this.ind++);
             for (let i = 0; i < size; i++)
                 last = this.evaluate(env);
             return last;
@@ -376,17 +377,17 @@ const toRun = "gold/setGold";
         findNext(open, close) {
             let num = 1, ind;
             for (ind = this.ind + 1; ind < this.source.length && num > 0; ind++) {
-                if (this.source.charCodeAt(ind - 1) == 2) ind++;
-                if (this.source.charCodeAt(ind) == close) num--;
-                else if (this.source.charCodeAt(ind) == open) num++;
+                if (this.code(ind - 1) == 2 && this.code(ind - 2) != 16) ind++;
+                if (this.code(ind) == close) num--;
+                else if (this.code(ind) == open) num++;
             }
             return ind;
         }
-        curCode() {
-            return this.source.charCodeAt(this.ind);
+        code(i) {
+            return this.source.charCodeAt(i);
         }
         evaluate(env) {
-            const type = Types[this.source.charCodeAt(this.ind++)];
+            const type = Types[this.code(this.ind++)];
             if (env.hasVar("return") && env.lookupVar("return") != nil) return;
             if (env.hasVar("break") && env.lookupVar("break") != nil) return;
             if (env.hasVar("continue") && env.lookupVar("continue") != nil) return;
