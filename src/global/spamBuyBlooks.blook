@@ -1,0 +1,28 @@
+if (window.location.pathname.startsWith("/market")) {
+    let prices = Array.prototype.reduce.call(document.querySelectorAll("[class*='packsWrapper'] > div"), (a, b) => {
+        if (!b.querySelector("[class*='blookContainer'] > img")) a[b.querySelector("[class*='packImgContainer'] > img").alt] = parseInt(b.querySelector("[class*='packBottom']").textContent);
+        return a;
+    }, {});
+    let box = prompt("Which box do you want to open? (ex: \"Ice Monster\")").split(' ').map((str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()).join(' ');
+    const cost = prices[box];
+    if (cost) {
+        const canOpen = Math.floor(stateNode.state.tokens / cost);
+        if (canOpen > 0) {
+            let amount = Math.min(canOpen, promptNum("How many boxes do you want to open?"));
+
+            let alertBlooks = confirm("Would you like to show blooks as unlocking?");
+            let blooks = {};
+            const now = Date.now();
+
+            let promiseChain = window.Promise.resolve();
+            for (let i = 0; i < amount; i++)
+                promiseChain = promiseChain.then(() => stateNode.buyPack(true, box)).then(() => {
+                    blooks[stateNode.state.unlockedBlook] = (blooks[stateNode.state.unlockedBlook] || 0) + 1;
+
+                    stateNode.setState({ canOpen: true, currentPack: "", opening: alertBlooks, doneOpening: alertBlooks, openPack: alertBlooks });
+                    clearTimeout(stateNode.canOpenTimeout);
+                });
+            promiseChain.finally(() => alert("(" + (Date.now() - now) + "ms) Results:\n" + Object.entries(blooks).map((x) => "    " + x[0] + " " + x[1]).join("\n")));
+        } else alert("You do not have enough tokens!");
+    } else alert("I couldn't find that box!");
+} else alert("This can only be ran in the Market page.");

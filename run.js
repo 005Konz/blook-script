@@ -9,7 +9,7 @@ const toRun = "gold/setGold";
 
     let i = document.querySelector("iframe");
     if (!i) {
-        document.createElement('iframe');
+        i = document.createElement('iframe');
         document.body.append(i);
         i.style.display = "none";
     }

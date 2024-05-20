@@ -1,0 +1,16 @@
+if (window.location.pathname.startsWith("/blooks")) {
+    if (confirm("Are you sure you want to sell your dupes? (Legendaries and rarer will not be sold)")) {
+        const now = window.Date.now();
+        let results = "";
+        const blooks = Object.keys(stateNode.state.blookData);
+        let promiseChain = window.Promise.resolve();
+        for (let i = 0; i < blooks.length; i++) if (stateNode.state.blookData[blooks[i]] > 1)
+            promiseChain = promiseChain.then(() => {
+                stateNode.setState({ blook: blooks[i], numToSell: stateNode.state.blookData[blooks[i]] - 1 });
+                if (!["Uncommon", "Rare", "Epic"].includes(queryElement("[class*='highlightedRarity']").innerText.trim())) return;
+                results += "    " + blooks[i] + " " + (stateNode.state.blookData[blooks[i]] - 1) + "\n";
+                return stateNode.sellBlook({ preventDefault: () => {} }, true);
+            });
+        promiseChain.finally(() => alert("(" + (Date.now() - now) + "ms) Results:\n" + results.trim()));
+    }
+} else alert("This can only be ran in the Blooks page.");
