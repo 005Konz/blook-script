@@ -415,6 +415,7 @@ const toRun = "gold/setGold";
         print: log, console: i.contentWindow.console,
         window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)), Object, Array, Math,
         queryElement: document.querySelector.bind(document), elStateNode: s => Object.values(document.querySelector(s))[1].children._owner.stateNode, isNaN, parseFloat, queryElementAll: document.querySelectorAll.bind(document),
+        fetch: window.fetch.bind(window),
         createElement: function createElement(type, props, ...children) {
             const element = document.createElement(type);
             addProps(element, props);
