@@ -9,7 +9,7 @@ if (location.pathname.startsWith("/play/lobby")) {
             return Object.keys.apply(this, arguments);
         }
         return Object._keys.apply(this, arguments);
-    }
+    };
     stateNode.render();
     stateNode.setState({ unlocks: Object.keys(blooks) });
 } else if (location.pathname.startsWith("/blooks")) {
@@ -23,7 +23,7 @@ if (location.pathname.startsWith("/play/lobby")) {
             return Object.entries.apply(this, arguments);
         }
         return Object._entries.apply(this, arguments);
-    }
+    };
     stateNode.render();
     stateNode.setState({ blookData: Object.keys(blooks).reduce((a, b) => (a[b] = (stateNode.state.blookData[b] || 1), a), {}), allSets: Object.values(blooks).reduce((a, b) => (b.set && a.includes(b.set) ? a : a.concat(b.set)), []) });
 } else alert("This only works in lobbys or the dashboard blooks page.");
