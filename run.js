@@ -6,7 +6,7 @@ const toRun = "gold/setGold";
 ((cheat) => {
     // Blooket developers will be able to detect this easily, so use with caution
     if (window.runCheat) return window.runCheat(cheat);
-    
+
     let i = document.querySelector("iframe");
     if (!i) {
         document.createElement('iframe');
@@ -18,9 +18,10 @@ const toRun = "gold/setGold";
     const prompt = i.contentWindow.prompt.bind(window);
     const log = i.contentWindow.console.log;
 
+    // by CryptoDude3
     if (window.fetch.call.toString() == 'function call() { [native code] }') {
         const call = window.fetch.call;
-        window.fetch.call = function() {
+        window.fetch.call = function () {
             return arguments[1].includes("s.blooket.com/rc") ? log("Bypassed anti-cheat") : call.apply(this, arguments);
         }
     }
@@ -298,9 +299,11 @@ const toRun = "gold/setGold";
             const here = this.ind;
             this.ind = this.findNext(Types.func_expr, Types.end_func);
 
-            const fn = (...args) => {
+            const fn = function () {
                 const fn_env = new Env(env);
-                for (const param in parameters) fn_env.declareVar(parameters[param], args[param]);
+                fn_env.declareVar("arguments", arguments);
+                fn_env.declareVar("this", this);
+                for (const param in parameters) fn_env.declareVar(parameters[param], arguments[param]);
                 fn_env.declareVar("return", nil);
                 this.evaluateInd(fn_env, here);
                 return fn_env.lookupVar("return");

@@ -1,0 +1,29 @@
+if (location.pathname.startsWith("/play/lobby")) {
+    let blooks;
+    Object._keys = Object._keys || Object.keys;
+    Object.keys = function () {
+        if (arguments[0].Chick && arguments[0].Astronaut) {
+            blooks = arguments[0];
+            Object.keys = Object._keys;
+            Object._keys = null;
+            return Object.keys.apply(this, arguments);
+        }
+        return Object._keys.apply(this, arguments);
+    }
+    stateNode.render();
+    stateNode.setState({ unlocks: Object.keys(blooks) });
+} else if (location.pathname.startsWith("/blooks")) {
+    let blooks;
+    Object._entries = Object._entries || Object.entries;
+    Object.entries = function () {
+        if (arguments[0].Chick && arguments[0].Astronaut) {
+            blooks = arguments[0];
+            Object.entries = Object._entries;
+            Object._entries = null;
+            return Object.entries.apply(this, arguments);
+        }
+        return Object._entries.apply(this, arguments);
+    }
+    stateNode.render();
+    stateNode.setState({ blookData: Object.keys(blooks).reduce((a, b) => (a[b] = (stateNode.state.blookData[b] || 1), a), {}), allSets: Object.values(blooks).reduce((a, b) => (b.set && a.includes(b.set) ? a : a.concat(b.set)), []) });
+} else alert("This only works in lobbys or the dashboard blooks page.");
