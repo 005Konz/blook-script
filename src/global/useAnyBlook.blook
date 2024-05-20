@@ -1,4 +1,4 @@
-if (location.pathname.startsWith("/play/lobby")) {
+if (window.location.pathname.startsWith("/play/lobby")) {
     let blooks;
     Object._keys = Object._keys || Object.keys;
     Object.keys = function () {
@@ -12,7 +12,7 @@ if (location.pathname.startsWith("/play/lobby")) {
     };
     stateNode.render();
     stateNode.setState({ unlocks: Object.keys(blooks) });
-} else if (location.pathname.startsWith("/blooks")) {
+} else if (window.location.pathname.startsWith("/blooks")) {
     let blooks;
     Object._entries = Object._entries || Object.entries;
     Object.entries = function () {
