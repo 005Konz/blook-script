@@ -1,7 +1,7 @@
 const target = prompt("Who's crypto would you like to steal?");
 stateNode.props.liveGameController.getDatabaseVal("c", (players) => {
-    if (players && Object.keys(players).map(x => x.toLowerCase()).includes(target.toLowerCase())) {
-        const player = Object.entries(players).find((x) => x[0].toLowerCase() == target.toLowerCase());
+    let player;
+    if (players && (player = Object.entries(players).find((x) => x[0].toLowerCase() == target.toLowerCase()))) {
         const cr = player[1].cr;
         stateNode.setState({
             crypto: stateNode.state.crypto + cr,

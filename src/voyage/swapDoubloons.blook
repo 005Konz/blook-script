@@ -2,13 +2,17 @@ stateNode.props.liveGameController.getDatabaseVal("c", function (val) {
     if (val == null) return;
     const players = [];
     Object.keys(val).forEach(name => {
-        if (name == stateNode.props.client.name) return;
-        players.push({ name, blook: val[name].b, doubloons: val[name].d || 0 });
+        if (name != stateNode.props.client.name)
+            players.push({ name, blook: val[name].b, doubloons: val[name].d || 0 });
     });
     if (players.length == 0) return alert("You're the only one here.");
     const name = prompt("Who would you like to swap with? (Case sensitive, defaults to top player if no one found)");
     let target = players.find(x => x.name == name);
-    if (target == null) target = players.sort((a, b) => b.doubloons - a.doubloons)[0];
+    if (target == null) {
+        target = players[0];
+        for (let i = 1; i < players.length; i++)
+            if (players[i].doubloons > target.doubloons) target = players[i];
+    }
     setVal("c/" + stateNode.props.client.name, {
         b: stateNode.props.client.blook,
         d: target.d,

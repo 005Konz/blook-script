@@ -3,20 +3,18 @@ setInterval((stats) => {
     if (stateNode.state.phase == "choice") {
         Array.prototype.forEach.call(document.getElementsByClassName('choiceESP'), x => x.remove());
         Object.keys(stateNode.state.guest.yes || {}).forEach(x => {
-            if (elements[x] == null) return;
-            let element = document.createElement('div');
-            element.className = 'choiceESP';
-            element.style = 'font-size: 24px; color: rgb(75, 194, 46); font-weight: bolder;';
-            element.innerText = String(stateNode.state.guest.yes[x]);
-            elements[x].appendChild(element);
+            if (elements[x] != null) elements[x].appendChild(createElement('div', {
+                className: 'choiceESP',
+                style: 'font-size: 24px; color: rgb(75, 194, 46); font-weight: bolder;',
+                innerText: String(stateNode.state.guest.yes[x])
+            }));
         });
         Object.keys(stateNode.state.guest.no || {}).forEach(x => {
-            if (elements[x] == null) return;
-            let element = document.createElement('div');
-            element.className = 'choiceESP';
-            element.style = 'font-size: 24px; color: darkred; font-weight: bolder;';
-            element.innerText = String(stateNode.state.guest.no[x]);
-            elements[x].appendChild(element);
+            if (elements[x] != null) elements[x].appendChild(createElement('div', {
+                className: 'choiceESP',
+                style: 'font-size: 24px; color: darkred; font-weight: bolder;',
+                innerText: String(stateNode.state.guest.no[x])
+            }));
         });
     }
 }, 50, ['materials', 'people', 'happiness', 'gold']);

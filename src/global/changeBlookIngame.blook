@@ -1,2 +1,1 @@
-stateNode.props.client.blook = prompt("Blook Name: (Case Sensitive)");
-setVal("c/" + stateNode.props.client.name + "/b", stateNode.props.client.blook);
+setVal("c/" + stateNode.props.client.name + "/b", stateNode.props.client.blook = prompt("Blook Name: (Case Sensitive)"));
