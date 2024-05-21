@@ -4,13 +4,15 @@ if (window.location.pathname.startsWith("/blooks")) {
         let results = "";
         const blooks = Object.keys(stateNode.state.blookData);
         let promiseChain = Promise.resolve();
-        for (let i = 0; i < blooks.length; i++) if (stateNode.state.blookData[blooks[i]] > 1)
+        for (let i = 0; i < blooks.length; i++) if (stateNode.state.blookData[blooks[i]] > 1) {
+            let j = i;
             promiseChain = promiseChain.then(() => {
-                stateNode.setState({ blook: blooks[i], numToSell: stateNode.state.blookData[blooks[i]] - 1 });
+                stateNode.setState({ blook: blooks[j], numToSell: stateNode.state.blookData[blooks[j]] - 1 });
                 if (!["Uncommon", "Rare", "Epic"].includes(queryElement("[class*='highlightedRarity']").innerText.trim())) return;
-                results += "    " + blooks[i] + " " + (stateNode.state.blookData[blooks[i]] - 1) + "\n";
+                results += "    " + blooks[j] + " " + (stateNode.state.blookData[blooks[j]] - 1) + "\n";
                 return stateNode.sellBlook({ preventDefault: () => {} }, true);
             });
+        }
         promiseChain.finally(() => alert("(" + (Date.now() - now) + "ms) Results:\n" + results.trim()));
     }
 } else alert("This can only be ran in the Blooks page.");
