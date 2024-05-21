@@ -14,7 +14,7 @@ if (window.location.pathname.startsWith("/market")) {
             let blooks = {};
             const now = Date.now();
 
-            let promiseChain = window.Promise.resolve();
+            let promiseChain = Promise.resolve();
             for (let i = 0; i < amount; i++)
                 promiseChain = promiseChain.then(() => stateNode.buyPack(true, box)).then(() => {
                     blooks[stateNode.state.unlockedBlook] = (blooks[stateNode.state.unlockedBlook] || 0) + 1;

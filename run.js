@@ -108,16 +108,10 @@ const toRun = "gold/setGold";
             return num;
         }
         FloatExpr() {
-            const size = this.code(this.ind++);
-            const str = this.source.slice(this.ind, this.ind + size);
-            this.ind += size;
-            return parseFloat(str);
+            return parseFloat(this.StringExpr());
         }
         SymbolExpr(env) {
-            const size = this.code(this.ind++);
-            const str = this.source.slice(this.ind, this.ind + size);
-            this.ind += size;
-            return env.lookupVar(str);
+            return env.lookupVar(this.StringExpr());
         }
         BlockStmt(env) {
             const size = this.code(this.ind++);
@@ -148,9 +142,7 @@ const toRun = "gold/setGold";
                 return assignee[property] = assignment_op(assignee[property], this.evaluate(env), this.evaluate(env));
             }
             if (type == "SymbolExpr") {
-                const size = this.code(this.ind++);
-                const str = this.source.slice(this.ind, this.ind + size);
-                this.ind += size;
+                const str = this.StringExpr();
                 return env.assignVar(str, assignment_op(env.lookupVar(str), this.evaluate(env), this.evaluate(env)));
             }
             throw new Error(`Unknown assignment type ${type}`);
@@ -282,7 +274,9 @@ const toRun = "gold/setGold";
                 args.push(this.evaluate(env));
             if (typeof callee == "function") {
                 let ret;
-                try { ret = callee.apply(callee[This], args); } catch { }
+                try { ret = callee.apply(callee[This], args); } catch (e) {
+                    i.contentWindow.console.warn(e);
+                }
                 return ret;
             }
         }
@@ -306,7 +300,9 @@ const toRun = "gold/setGold";
                 fn_env.declareVar("this", this);
                 for (const param in parameters) fn_env.declareVar(parameters[param], arguments[param]);
                 fn_env.declareVar("return", nil);
+
                 runtime.evaluateInd(fn_env, here);
+
                 return fn_env.lookupVar("return");
             }
             if (name.length) env.declareVar(name, fn);
@@ -413,9 +409,11 @@ const toRun = "gold/setGold";
         true: true, false: false, null: null,
         setVal: (path, val) => constants.stateNode.props.liveGameController.setVal({ path, val }),
         print: log, console: i.contentWindow.console,
-        window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)), Object, Array, Math,
-        queryElement: document.querySelector.bind(document), elStateNode: s => Object.values(document.querySelector(s))[1].children._owner.stateNode, isNaN, parseFloat, queryElementAll: document.querySelectorAll.bind(document),
+        window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)), Date, Object, Array, Math, isNaN, parseFloat, parseInt,
+        queryElement: document.querySelector.bind(document), 
+        queryElementAll: document.querySelectorAll.bind(document),
         fetch: window.fetch.bind(window),
+        elStateNode: s => Object.values(document.querySelector(s))[1].children._owner.stateNode,
         createElement: function createElement(type, props, ...children) {
             const element = document.createElement(type);
             addProps(element, props);
