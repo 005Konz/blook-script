@@ -20,7 +20,7 @@ if (window.location.pathname.startsWith("/market")) {
                     blooks[stateNode.state.unlockedBlook] = (blooks[stateNode.state.unlockedBlook] || 0) + 1;
 
                     stateNode.setState({ canOpen: true, currentPack: "", opening: alertBlooks, doneOpening: alertBlooks, openPack: alertBlooks });
-                    clearTimeout(stateNode.canOpenTimeout);
+                    window.clearTimeout(stateNode.canOpenTimeout);
                 });
             promiseChain.finally(() => alert("(" + (Date.now() - now) + "ms) Results:\n" + Object.entries(blooks).map((x) => "    " + x[0] + " " + x[1]).join("\n")));
         } else alert("You do not have enough tokens!");
