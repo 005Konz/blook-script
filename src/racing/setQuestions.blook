@@ -1,5 +1,5 @@
 let progress = stateNode.props.client.amount - promptNum("How many questions left do you want?");
-if (isNaN(progress) || progress < 0) alert("Invalid Number");
+if (isNaN(progress) || progress < 0) alert("Invalid amount");
 else {
     stateNode.setState({ progress });
     setVal("c/" + stateNode.props.client.name + "/pr", progress);

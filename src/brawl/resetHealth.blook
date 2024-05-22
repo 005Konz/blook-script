@@ -1,1 +1,1 @@
-stateNode.state.game.scene.game.events._events.respawn.fn();
+stateNode.game.current.events._events.respawn.fn();

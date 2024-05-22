@@ -1,7 +1,7 @@
 const abilities = Object.entries(stateNode.state.abilities);
 for (let i = 0; i < abilities.length; i++)
     for (let j = 0; j < (10 - abilities[i][1]); j++)
-        stateNode.state.game.scene.game.events.emit("level up", abilities[i][0], stateNode.state.abilities[abilities[i][0]]++);
+        stateNode.game.current.events.emit("level up", abilities[i][0], stateNode.state.abilities[abilities[i][0]]++);
 stateNode.setState({
-    level: stateNode.state.game.scene.level = [1, 3, 5, 10, 15, 25, 35].sort((a, b) => Math.abs(a - stateNode.state.level) - Math.abs(b - stateNode.state.level))[0] - 1
+    level: stateNode.game.current.config.sceneConfig.level = [1, 3, 5, 10, 15, 25, 35].sort((a, b) => Math.abs(a - stateNode.state.level) - Math.abs(b - stateNode.state.level))[0] - 1
 });

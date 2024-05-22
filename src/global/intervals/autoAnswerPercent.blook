@@ -28,6 +28,7 @@ else {
                     const contains = question.correctAnswers.includes(question.answers[i]);
                     if (yes == contains) return answerContainers[i].click();
                 }
+                print("Didn't find an answer");
                 answerContainers[0].click();
             } else elStateNode("[class*='typingAnswerWrapper']").sendAnswer(yes ? question.answers[0] : Math.random().toString(36).substring(2));
         }

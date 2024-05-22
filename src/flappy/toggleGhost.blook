@@ -1,4 +1,4 @@
-Object.values(queryElement("#phaser-bouncy"))[1].children[0]._owner.stateNode.state.game.scene.physics.world.bodies.entries.forEach(x => {
+Object.values(queryElement("#phaser-bouncy"))[0].return.updateQueue.lastEffect.deps[0].current.config.sceneConfig.physics.world.bodies.entries.forEach(x => {
     if (!x.gameObject.frame.texture.key.startsWith("blook")) return;
     x.checkCollision.none = x.gameObject.alpha == 1;
     x.gameObject.setAlpha(x.gameObject.alpha == 1 ? 0.5 : 1);

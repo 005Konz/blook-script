@@ -7,6 +7,6 @@ stateNode.props.liveGameController.getDatabaseVal("c", (players) => {
             tat: player + ":swap:" + stateNode.state.gold,
             g: gold
         });
-        setState({ gold, gold2: gold });
+        stateNode.setState({ gold, gold2: gold });
     }
 });

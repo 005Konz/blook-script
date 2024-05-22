@@ -1,4 +1,4 @@
-const colliders = stateNode.state.game.scene.physics.world.colliders._active.filter(x => x.callbackContext.toString().includes('dmgCd'));
+const colliders = stateNode.game.current.config.sceneConfig.physics.world.colliders._active.filter(x => x.callbackContext.toString().includes('dmgCd'));
 for (let i = 0; i < colliders.length; i++) {
     const enemies = colliders[i].object2;
     let _start = enemies.classType.prototype.start;

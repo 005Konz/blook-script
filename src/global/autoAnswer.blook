@@ -1,17 +1,16 @@
 const Question = stateNode.state.question || stateNode.props.client.question;
 if (stateNode.state.question.qType != "typing") {
     if (stateNode.state.stage != "feedback" && !stateNode.state.feedback) {
-        let ind = 0;
-        while (ind < Question.answers.length) {
+        let ind;
+        for (ind = 0; ind < Question.answers.length; ind++) {
             let found = false;
             for (let j = 0; j < Question.correctAnswers.length; j++)
                 if (Question.answers[ind] == Question.correctAnswers[j]) {
                     found = true;
                     break;
                 }
-            ind++;
             if (found) break;
         }
-        queryElement("[class*='answerContainer'] :nth-child(" + ind + ")").click();
+        queryElementAll("[class*='answerContainer']")[ind].click();
     } else queryElement("[class*='feedback'] :nth-child(1)").click();
 } else elStateNode("[class*='typingAnswerWrapper']").sendAnswer(Question.answers[0]);

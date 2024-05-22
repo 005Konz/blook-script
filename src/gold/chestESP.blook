@@ -10,6 +10,6 @@ for (let ind = 0; ind < stateNode.state.choices.length; ind++) {
                 justifyContent: "center",
                 transform: "translateY(200px)",
             },
-            innerText: stateNode.state.choices[ind]
+            innerText: stateNode.state.choices[ind].text
         }));
 }

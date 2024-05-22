@@ -1,1 +1,1 @@
-stateNode.state.game.scene.physics.world.bodies.entries.forEach(x => x.gameObject.receiveDamage(x.gameObject.hp, 1));
+stateNode.game.current.config.sceneConfig.physics.world.bodies.entries.forEach(x => x.gameObject.receiveDamage(x.gameObject.hp, 1));

@@ -1,2 +1,2 @@
-if (window.location.pathname == "/tower/battle") stateNode.setState({ myHealth: 100 });
+if (window.location.pathname == "/tower/battle") stateNode.setState({ myHealth: 100, myLife: 100 });
 else alert("You need to be in battle to run this cheat!");

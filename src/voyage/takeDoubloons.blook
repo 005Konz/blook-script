@@ -15,8 +15,8 @@ stateNode.props.liveGameController.getDatabaseVal("c", function (val) {
     }
     setVal("c/" + stateNode.props.client.name, {
         b: stateNode.props.client.blook,
-        d: stateNode.state.doubloons + target.d,
-        tat: target.name + ":" + target.d
+        d: stateNode.state.doubloons + target.doubloons,
+        tat: target.name + ":" + target.doubloons
     });
-    stateNode.setState({ doubloons: stateNode.state.doubloons + target.d });
+    stateNode.setState({ doubloons: stateNode.state.doubloons + target.doubloons });
 });

@@ -1,1 +1,1 @@
-stateNode.state.game.scene.physics.world.colliders._active.find(x => x.collideCallback.toString().includes('magnetTime')).collideCallback({ active: true }, { active: true, setActive: () => { }, setVisible: () => { } });
+stateNode.game.current.config.sceneConfig.physics.world.colliders._active.find(x => x.collideCallback.toString().includes('magnetTime')).collideCallback({ active: true }, { active: true, setActive: () => { }, setVisible: () => { } });
