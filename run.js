@@ -30,7 +30,7 @@ const toRun = "gold/setGold";
     const This = Symbol("this");
 
     const Types = {};
-    const tokens = "NumberExpr:number_expr,FloatExpr:float_expr,StringExpr:string_expr,SymbolExpr:symbol_expr,BinaryExpr:binary_expr,PrefixExpr:prefix_expr,SuffixExpr:suffix_expr,AssignmentExpr:assignment_expr,ObjectExpr:object_expr,ArrayExpr:array_expr,CallExpr:call_expr,MemberExpr:member_expr,DynamicMemberExpr:dynamic_member_expr,TernaryExpr:ternary_expr,FuncExpr:func_expr,GroupExpr:group_expr,BlockStmt:block_stmt,ExpressionStmt:expression_stmt,VarDeclStmt:declr_stmt,FuncDeclStmt:func_decl_stmt,WhileStmt:while_stmt,ForStmt:for_stmt,IfStmt:if_stmt,ElseStmt:else_stmt,ReturnStmt:return_stmt,ContinueStmt:continue_stmt,BreakStmt:break_stmt,EndFunc:end_func,EndFor:end_for,EndWhile:end_while,EndIf:end_if,EndElse:end_else,TernaryQue:ternary_que,TernaryCol:ternary_col,EndTernary:end_ternary,ForIncr:for_incr,TypeofExpr:typeof_expr".split(",").map(x => x.trim().split(":"));
+    const tokens = "NumberExpr:number_expr,FloatExpr:float_expr,StringExpr:string_expr,SymbolExpr:symbol_expr,BinaryExpr:binary_expr,PrefixExpr:prefix_expr,SuffixExpr:suffix_expr,AssignmentExpr:assignment_expr,ObjectExpr:object_expr,ArrayExpr:array_expr,CallExpr:call_expr,MemberExpr:member_expr,DynamicMemberExpr:dynamic_member_expr,TernaryExpr:ternary_expr,FuncExpr:func_expr,GroupExpr:group_expr,BlockStmt:block_stmt,ExpressionStmt:expression_stmt,VarDeclStmt:declr_stmt,FuncDeclStmt:func_decl_stmt,WhileStmt:while_stmt,ForStmt:for_stmt,IfStmt:if_stmt,ElseStmt:else_stmt,ReturnStmt:return_stmt,ContinueStmt:continue_stmt,BreakStmt:break_stmt,EndFunc:end_func,EndFor:end_for,EndWhile:end_while,EndIf:end_if,EndElse:end_else,TernaryQue:ternary_que,TernaryCol:ternary_col,EndTernary:end_ternary,ForIncr:for_incr,TypeofExpr:typeof_expr,InstanceExpr:instance_expr".split(",").map(x => x.trim().split(":"));
     for (let id = 0; id < tokens.length; id++) {
         Types[tokens[id][0]] = tokens[id][1];
         Types[tokens[id][1]] = id;
@@ -369,6 +369,20 @@ const toRun = "gold/setGold";
         }
         TypeofExpr(env) {
             return typeof this.evaluate(env);
+        }
+        InstanceExpr(env) {
+            const callee = this.evaluate(env);
+            const args = [];
+            const size = this.code(this.ind++);
+            for (let i = 0; i < size; i++)
+                args.push(this.evaluate(env));
+            if (typeof callee == "function") {
+                let ret;
+                try { ret = Reflect.construct(callee, args); } catch (e) {
+                    i.contentWindow.console.warn(e);
+                }
+                return ret;
+            }
         }
         findNext(open, close) {
             let num = 1, ind;
