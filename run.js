@@ -110,59 +110,72 @@ const toRun = "gold/setGold";
         FloatExpr() {
             return parseFloat(this.StringExpr());
         }
-        SymbolExpr(env) {
+        SymbolExpr(env, ignore) {
+            if (ignore) return void this.StringExpr();
             return env.lookupVar(this.StringExpr());
         }
-        BlockStmt(env) {
+        BlockStmt(env, ignore) {
             const size = this.code(this.ind++);
-            for (let i = 0; i < size; i++) this.evaluate(env);
+            for (let i = 0; i < size; i++) this.evaluate(env, ignore);
         }
-        VarDeclStmt(env) {
-            const name = this.evaluate(env);
+        VarDeclStmt(env, ignore) {
+            const name = this.evaluate(env, ignore);
             const isConstant = this.code(this.ind++) == 1;
-            const value = this.code(this.ind++) == 1 ? this.evaluate(env) : null;
+            const value = this.code(this.ind++) == 1 ? this.evaluate(env, ignore) : null;
+            if (ignore) return;
             return env.declareVar(name, value, isConstant);
         }
-        ExpressionStmt(env) {
-            return this.evaluate(env);
+        ExpressionStmt(env, ignore) {
+            return this.evaluate(env, ignore);
         }
-        MemberExpr(env) {
-            const assignee = this.evaluate(env);
-            const prop = this.evaluate(env);
+        MemberExpr(env, ignore) {
+            const assignee = this.evaluate(env, ignore);
+            const prop = this.evaluate(env, ignore);
+            if (ignore) return;
             let res = assignee?.[prop];
             try { res && (res[This] = assignee); } catch { };
             return res;
         }
-        AssignmentExpr(env) {
-
+        AssignmentExpr(env, ignore) {
             const type = Types[this.code(this.ind++)];
             if (type == "MemberExpr") {
-                let assignee = this.evaluate(env);
-                const property = this.evaluate(env);
+                let assignee = this.evaluate(env, ignore);
+                const property = this.evaluate(env, ignore);
+                if (ignore) {
+                    this.evaluate(env, ignore);
+                    this.evaluate(env, ignore);
+                    return;
+                }
                 return assignee[property] = assignment_op(assignee[property], this.evaluate(env), this.evaluate(env));
             }
             if (type == "SymbolExpr") {
                 const str = this.StringExpr();
+                if (ignore) {
+                    this.evaluate(env, ignore);
+                    this.evaluate(env, ignore);
+                    return;
+                }
                 return env.assignVar(str, assignment_op(env.lookupVar(str), this.evaluate(env), this.evaluate(env)));
             }
             throw new Error(`Unknown assignment type ${type}`);
         }
-        PrefixExpr(env) {
-            const operator = this.evaluate(env);
+        PrefixExpr(env, ignore) {
+            const operator = this.evaluate(env, ignore);
             switch (operator) {
                 case "-":
-                    return -this.evaluate(env);
+                    return -this.evaluate(env, ignore);
                 case "!":
-                    return !this.evaluate(env);
+                    return !this.evaluate(env, ignore);
             }
             throw new Error(`Unknown prefix operator: ${operator}`);
         }
-        ObjectExpr(env) {
+        ObjectExpr(env, ignore) {
             const obj = {};
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
-                const key = this.evaluate(env);
-                obj[key] = this.evaluate(env);
+                const key = this.evaluate(env, ignore);
+                const val = this.evaluate(env, ignore);
+                if (!ignore) obj[key] = val;
             }
             return obj;
         }
@@ -172,13 +185,28 @@ const toRun = "gold/setGold";
             loop_env.declareVar("continue", nil);
             return loop_env;
         }
-        ForStmt(env) {
+        ForStmt(env, ignore) {
+            if (ignore) {
+                this.evaluate(env, ignore);
+                this.evaluate(env, ignore);
+                this.evaluate(env, ignore);
+                this.ind++;
+                this.evaluate(env, ignore);
+                this.ind++;
+                return;
+            }
+
             const for_env = Eval.LoopEnv(env);
             this.evaluate(for_env);
             const vars = { ...for_env.variables };
             const start = this.ind;
-            const end = this.findNext(Types.for_stmt, Types.end_for);
-            const incr = this.findNext(Types.for_stmt, Types.for_incr);
+
+            this.evaluate(env, true);
+            this.evaluate(env, true);
+            const incr = this.ind + 1;
+            this.evaluate(env, true);
+            const end = this.ind + 1;
+
             while ((this.ind = start, this.evaluate(for_env))) {
                 this.evaluate(for_env);
                 for_env.assignVar("continue", nil);
@@ -193,10 +221,19 @@ const toRun = "gold/setGold";
             this.ind = end;
             return;
         }
-        WhileStmt(env) {
+        WhileStmt(env, ignore) {
+            if (ignore) {
+                this.evaluate(env, ignore);
+                this.evaluate(env, ignore);
+                this.ind++;
+                return;
+            }
+
             let while_env = Eval.LoopEnv(env);
             const start = this.ind;
-            const end = this.findNext(Types.while_stmt, Types.end_while);
+            this.evaluate(env, true);
+            this.evaluate(env, true);
+            const end = this.ind + 1;
             while ((this.ind = start, this.evaluate(while_env))) {
                 this.evaluate(while_env);
                 while_env.assignVar("continue", nil);
@@ -209,44 +246,53 @@ const toRun = "gold/setGold";
             }
             this.ind = end;
         }
-        BinaryExpr(env) {
-            const left = this.evaluate(env);
-            const operator = this.evaluate(env);
-            const right = this.evaluate(env);
+        BinaryExpr(env, ignore) {
+            const left = this.evaluate(env, ignore);
+            const operator = this.evaluate(env, ignore);
+            if (ignore) return;
             switch (operator) {
                 case "+":
-                    return left + right;
+                    return left + this.evaluate(env);
                 case "-":
-                    return left - right;
+                    return left - this.evaluate(env);
                 case "*":
-                    return left * right;
+                    return left * this.evaluate(env);
                 case "/":
-                    return left / right;
+                    return left / this.evaluate(env);
                 case "%":
-                    return left % right;
+                    return left % this.evaluate(env);
                 case "<":
-                    return left < right;
+                    return left < this.evaluate(env);
                 case ">":
-                    return left > right;
+                    return left > this.evaluate(env);
                 case "<=":
-                    return left <= right;
+                    return left <= this.evaluate(env);
                 case ">=":
-                    return left >= right;
+                    return left >= this.evaluate(env);
                 case "==":
-                    return left == right;
+                    return left == this.evaluate(env);
                 case "!=":
-                    return left != right;
-                case "||":
-                    return left || right;
-                case "&&":
-                    return left && right;
+                    return left != this.evaluate(env);
+                case "||": {
+                    if (left) {
+                        this.evaluate(env, true);
+                        return left;
+                    }
+                    return this.evaluate(env);
+                }
+                case "&&": {
+                    if (left) return this.evaluate(env);
+                    this.evaluate(env, true);
+                    return left;
+                }
             }
             throw new Error(`Unknown binary operator ${operator}`);
         }
-        SuffixExpr(env) {
+        SuffixExpr(env, ignore) {
             if (this.code(this.ind++) == Types.symbol_expr) {
-                const assignee = this.StringExpr(env);
-                const operator = this.evaluate(env);
+                const assignee = this.StringExpr();
+                const operator = this.evaluate(env, ignore);
+                if (ignore) return;
                 switch (operator) {
                     case "++":
                         return env.assignVar(assignee, env.lookupVar(assignee) + 1);
@@ -255,9 +301,10 @@ const toRun = "gold/setGold";
                 }
                 throw new Error(`Unknown suffix operator: ${operator}`);
             }
-            const assignee = this.evaluate(env);
-            const property = this.evaluate(env);
-            const operator = this.evaluate(env);
+            const assignee = this.evaluate(env, ignore);
+            const property = this.evaluate(env, ignore);
+            const operator = this.evaluate(env, ignore);
+            if (ignore) return;
             switch (operator) {
                 case "++":
                     return assignee[property]++;
@@ -266,12 +313,13 @@ const toRun = "gold/setGold";
             }
             throw new Error(`Unknown suffix operator: ${operator}`);
         }
-        CallExpr(env) {
-            const callee = this.evaluate(env);
+        CallExpr(env, ignore) {
+            const callee = this.evaluate(env, ignore);
             const args = [];
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++)
-                args.push(this.evaluate(env));
+                args.push(this.evaluate(env, ignore));
+            if (ignore) return;
             if (typeof callee == "function") {
                 let ret;
                 try { ret = callee.apply(callee[This], args); } catch (e) {
@@ -280,18 +328,29 @@ const toRun = "gold/setGold";
                 return ret;
             }
         }
-        FuncExpr(env) {
+        FuncExpr(env, ignore) {
+            if (ignore) {
+                this.ind++
+                this.StringExpr()
+                const size = this.code(this.ind++);
+                for (let i = 0; i < size; i++)
+                    this.evaluate(env, ignore);
+                this.evaluate(env, ignore);
+                this.ind++;
+                return;
+            }
             this.ind++;
-            const name = this.StringExpr(env);
+            const name = this.StringExpr();
             const parameters = [];
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
                 this.ind++;
-                parameters.push(this.StringExpr(env));
+                parameters.push(this.StringExpr());
             }
 
             const here = this.ind;
-            this.ind = this.findNext(Types.func_expr, Types.end_func);
+            this.evaluate(env, true);
+            this.ind++;
 
             const runtime = this;
             const fn = function () {
@@ -308,35 +367,49 @@ const toRun = "gold/setGold";
             if (name.length) env.declareVar(name, fn);
             return fn;
         }
-        ArrayExpr(env) {
+        ArrayExpr(env, ignore) {
             const arr = [];
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++) {
-                arr.push(this.evaluate(env));
+                arr.push(this.evaluate(env, ignore));
             }
             return arr;
         }
-        ReturnStmt(env) {
-            const ret = this.code(this.ind++) == 1 ? this.evaluate(env) : null;
+        ReturnStmt(env, ignore) {
+            const ret = this.code(this.ind++) == 1 ? this.evaluate(env, ignore) : null;
+            if (ignore) return;
             return env.assignVar("return", ret);
         }
-        BreakStmt(env) {
-            return env.assignVar("break", true);
+        BreakStmt(env, ignore) {
+            if (!ignore) return env.assignVar("break", true);
         }
-        ContinueStmt(env) {
-            return env.assignVar("continue", true);
+        ContinueStmt(env, ignore) {
+            if (!ignore) return env.assignVar("continue", true);
         }
-        IfStmt(env) {
-            const elseLoc = this.findNext(Types.if_stmt, Types.end_if);
+        IfStmt(env, ignore) {
+            if (ignore) {
+                this.evaluate(env, ignore);
+                this.evaluate(env, ignore);
+                this.ind++;
+                if (this.code(this.ind++) == 1) {
+                    this.ind++;
+                    this.evaluate(env, ignore);
+                    this.ind++;
+                }
+                return;
+            }
             const condition = this.evaluate(env);
             if (condition) {
                 this.evaluate(new Env(env));
                 this.ind++;
                 if (this.code(this.ind++) == 1) {
-                    this.ind = this.findNext(Types.else_stmt, Types.end_else);
+                    this.ind++;
+                    this.evaluate(env, true);
+                    this.ind++;
                 }
             } else {
-                this.ind = elseLoc;
+                this.evaluate(env, true);
+                this.ind++;
                 if (this.code(this.ind++) == 1) {
                     this.ind++;
                     this.evaluate(new Env(env));
@@ -344,38 +417,48 @@ const toRun = "gold/setGold";
                 }
             }
         }
-        TernaryExpr(env) {
+        TernaryExpr(env, ignore) {
+            if (ignore) {
+                this.evaluate(env, ignore);
+                this.ind++;
+                this.evaluate(env, ignore);
+                this.ind++;
+                this.evaluate(env, ignore);
+                this.ind++;
+            }
             const condition = this.evaluate(env);
             this.ind++;
-            const endLoc = this.findNext(Types.ternary_expr, Types.end_ternary);
-            const elseLoc = this.findNext(Types.ternary_que, Types.ternary_col);
             let val;
             if (condition) {
                 val = this.evaluate(env);
-                this.ind = endLoc;
+                this.ind++;
+                this.evaluate(env, true);
+                this.ind++;
             } else {
-                this.ind = elseLoc;
+                this.evaluate(env, true);
+                this.ind++;
                 val = this.evaluate(env);
                 this.ind++;
             }
             return val;
         }
-        GroupExpr(env) {
+        GroupExpr(env, ignore) {
             let last;
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++)
-                last = this.evaluate(env);
+                last = this.evaluate(env, ignore);
             return last;
         }
-        TypeofExpr(env) {
-            return typeof this.evaluate(env);
+        TypeofExpr(env, ignore) {
+            return typeof this.evaluate(env, ignore);
         }
-        InstanceExpr(env) {
-            const callee = this.evaluate(env);
+        InstanceExpr(env, ignore) {
+            const callee = this.evaluate(env, ignore);
             const args = [];
             const size = this.code(this.ind++);
             for (let i = 0; i < size; i++)
-                args.push(this.evaluate(env));
+                args.push(this.evaluate(env, ignore));
+            if (ignore) return;
             if (typeof callee == "function") {
                 let ret;
                 try { ret = Reflect.construct(callee, args); } catch (e) {
@@ -384,26 +467,19 @@ const toRun = "gold/setGold";
                 return ret;
             }
         }
-        findNext(open, close) {
-            let num = 1, ind;
-            for (ind = this.ind + 1; ind < this.source.length && num > 0; ind++) {
-                if (this.code(ind - 1) == 2 && this.code(ind - 2) != 16) ind++;
-                if (this.code(ind) == close) num--;
-                else if (this.code(ind) == open) num++;
-            }
-            return ind;
-        }
         code(i) {
             return this.source.charCodeAt(i);
         }
-        evaluate(env) {
+        evaluate(env, ignore = false) {
             const type = Types[this.code(this.ind++)];
-            if (env.hasVar("return") && env.lookupVar("return") != nil) return;
-            if (env.hasVar("break") && env.lookupVar("break") != nil) return;
-            if (env.hasVar("continue") && env.lookupVar("continue") != nil) return;
-            if (type in this) return this[type](env);
-            console.error(new Error(`No eval function for type ${type}`))
-            throw new Error(`No eval function for type ${type}`);
+            if (!ignore) {
+                if (env.hasVar("return") && env.lookupVar("return") != nil) return;
+                if (env.hasVar("break") && env.lookupVar("break") != nil) return;
+                if (env.hasVar("continue") && env.lookupVar("continue") != nil) return;
+            }
+            if (type in this) return this[type](env, ignore);
+            console.error(new Error(`No eval function for type ${type} ${ignore}`))
+            throw new Error(`No eval function for type ${type} ${ignore}`);
         }
         evaluateInd(env, ind) {
             const temp = this.ind;
@@ -426,7 +502,7 @@ const toRun = "gold/setGold";
         window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)),
         isNaN, parseFloat, parseInt,
         Date, Object, Array, Math, Promise, Number,
-        queryElement: document.querySelector.bind(document), 
+        queryElement: document.querySelector.bind(document),
         queryElementAll: document.querySelectorAll.bind(document),
         fetch: window.fetch.bind(window),
         elStateNode: s => Object.values(document.querySelector(s))[1].children._owner.stateNode,
