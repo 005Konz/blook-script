@@ -12,5 +12,5 @@ stateNode.props.liveGameController.getDatabaseVal("c", (val) => {
         phaseTwo: true,
         stage: "prize",
         choiceObj: { type: "swap" }
-    }, () => setTimeout(() => stateNode.setState({ choosingPlayer: true }), 300));
+    }, () => window.setTimeout(() => stateNode.setState({ choosingPlayer: true }), 300));
 });

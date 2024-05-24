@@ -1,4 +1,4 @@
-setInterval((stats) => {
+window.setInterval((stats) => {
     let elements = Array.prototype.reduce.call(queryElementAll('[class*=statContainer]'), (obj, container, i) => (obj[stats[i]] = container, obj), {});
     if (stateNode.state.phase == "choice") {
         Array.prototype.forEach.call(queryElementAll('.choiceESP'), x => x.remove());

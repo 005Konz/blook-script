@@ -1,3 +1,1 @@
-stateNode.state.customers.forEach((customer, i) => {
-    if (Object.keys(customer).length) stateNode.removeCustomer(i, true);
-});
+stateNode.state.customers.forEach((customer, i) => window.setTimeout(() => customer.blook && stateNode.removeCustomer(i, true), i * 250));

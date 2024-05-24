@@ -1,3 +1,3 @@
 let toys = promptNum("How many toys would you like?");
 stateNode.setState({ toys });
-stateNode.props.liveGameController.setVal("c/" + stateNode.props.client.name + "/t", toys);
+setVal("c/" + stateNode.props.client.name + "/t", toys);

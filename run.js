@@ -146,7 +146,7 @@ const toRun = "gold/setGold";
                     this.evaluate(env, ignore);
                     return;
                 }
-                return assignee[property] = assignment_op(assignee[property], this.evaluate(env), this.evaluate(env));
+                return assignee[property] &&= assignment_op(assignee[property], this.evaluate(env), this.evaluate(env));
             }
             if (type == "SymbolExpr") {
                 const str = this.StringExpr();
@@ -203,20 +203,16 @@ const toRun = "gold/setGold";
 
             this.evaluate(env, true);
             this.evaluate(env, true);
-            const incr = this.ind + 1;
+            const incr = ++this.ind;
             this.evaluate(env, true);
             const end = this.ind + 1;
 
             while ((this.ind = start, this.evaluate(for_env))) {
-                this.evaluate(for_env);
+                this.evaluate(new Env(for_env));
                 for_env.assignVar("continue", nil);
                 if (for_env.lookupVar("break") != nil) break;
                 this.ind = incr;
                 this.evaluate(for_env);
-                for (const key in for_env.variables) if (!(key in vars)) {
-                    delete for_env.variables[key];
-                    delete for_env.constants[key];
-                }
             }
             this.ind = end;
             return;
@@ -235,21 +231,19 @@ const toRun = "gold/setGold";
             this.evaluate(env, true);
             const end = this.ind + 1;
             while ((this.ind = start, this.evaluate(while_env))) {
-                this.evaluate(while_env);
+                this.evaluate(new Env(while_env));
                 while_env.assignVar("continue", nil);
                 if (while_env.lookupVar("break") != nil) break;
-                while_env.variables = {
-                    break: nil,
-                    continue: nil
-                }
-                while_env.constants = Object.create(null);
             }
             this.ind = end;
         }
         BinaryExpr(env, ignore) {
             const left = this.evaluate(env, ignore);
             const operator = this.evaluate(env, ignore);
-            if (ignore) return;
+            if (ignore) {
+                this.evaluate(env, ignore);
+                return;
+            }
             switch (operator) {
                 case "+":
                     return left + this.evaluate(env);
@@ -274,6 +268,8 @@ const toRun = "gold/setGold";
                 case "!=":
                     return left != this.evaluate(env);
                 case "||": {
+                    // const right = this.evaluate(env);
+                    // return left || right;
                     if (left) {
                         this.evaluate(env, true);
                         return left;
@@ -281,6 +277,8 @@ const toRun = "gold/setGold";
                     return this.evaluate(env);
                 }
                 case "&&": {
+                    // const right = this.evaluate(env);
+                    // return left && right;
                     if (left) return this.evaluate(env);
                     this.evaluate(env, true);
                     return left;
@@ -330,11 +328,12 @@ const toRun = "gold/setGold";
         }
         FuncExpr(env, ignore) {
             if (ignore) {
-                this.ind++
-                this.StringExpr()
+                this.ind++;
+                this.StringExpr();
                 const size = this.code(this.ind++);
-                for (let i = 0; i < size; i++)
+                for (let i = 0; i < size; i++) {
                     this.evaluate(env, ignore);
+                }
                 this.evaluate(env, ignore);
                 this.ind++;
                 return;
@@ -425,6 +424,7 @@ const toRun = "gold/setGold";
                 this.ind++;
                 this.evaluate(env, ignore);
                 this.ind++;
+                return;
             }
             const condition = this.evaluate(env);
             this.ind++;
@@ -495,13 +495,14 @@ const toRun = "gold/setGold";
         for (const prop in obj) if (typeof obj[prop] == "object") addProps(element[prop], obj[prop]);
         else element[prop] = obj[prop];
     }
+    const stateNode = () => Object.values((function react(r = document.querySelector("body>div")) { return Object.values(r)[1]?.children?.[0]?._owner.stateNode ? r : react(r.querySelector(":scope>div")) })())[1].children[0]._owner.stateNode;
     const constants = {
         true: true, false: false, null: null,
-        setVal: (path, val) => constants.stateNode.props.liveGameController.setVal({ path, val }),
+        setVal: (path, val) => stateNode().props.liveGameController?.setVal?.({ path, val }),
         print: log, console: i.contentWindow.console,
         window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)),
         isNaN, parseFloat, parseInt,
-        Date, Object, Array, Math, Promise, Number,
+        Date, Object, Array, Math, Promise, Number, String,
         queryElement: document.querySelector.bind(document),
         queryElementAll: document.querySelectorAll.bind(document),
         fetch: window.fetch.bind(window),
@@ -511,13 +512,14 @@ const toRun = "gold/setGold";
             addProps(element, props);
             for (const child of children) element.append(child);
             return element;
-        }
+        },
+        stateNode: true
     };
-    Object.defineProperty(constants, "stateNode", {
-        get: () => Object.values((function react(r = document.querySelector("body>div")) { return Object.values(r)[1]?.children?.[0]?._owner.stateNode ? r : react(r.querySelector(":scope>div")) })())[1].children[0]._owner.stateNode,
+    const env = new Env(undefined, constants);
+    Object.defineProperty(env.variables, "stateNode", {
+        get: stateNode,
         enumerable: true
     });
-    const env = new Env(undefined, constants);
     (window.runCheat = function (path) {
         let img = new Image;
         img.src = "https://raw.githubusercontent.com/005Konz/blook-script/main/out/" + path + ".png?" + Date.now();

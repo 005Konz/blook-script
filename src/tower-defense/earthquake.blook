@@ -9,7 +9,7 @@ stateNode.setState({
     },
     buyTowerName: "",
     buyTower: {}
-}, () => stateNode.eventTimeout = setTimeout(() => stateNode.setState({ event: {}, eventName: "" }), 6000));
+}, () => stateNode.eventTimeout = window.setTimeout(() => stateNode.setState({ event: {}, eventName: "" }), 6000));
 stateNode.tiles.forEach(row => row.forEach((col, i) => {
     if (col == 3) row[i] = 0;
 }));

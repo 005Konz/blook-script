@@ -1,1 +1,1 @@
-setInterval(() => stateNode.onAnswer(true, stateNode.props.client.question.correctAnswers[0]), 50);
+window.setInterval(() => stateNode.onAnswer(true, stateNode.props.client.question.correctAnswers[0]), 50);

@@ -1,5 +1,5 @@
 let glitches = { lb: "Lunch Break", as: "Ad Spam", e37: "Error 37", nt: "Night Time", lo: "#LOL", j: "Jokester", sm: "Slow Mo", dp: "Dance Party", v: "Vortex", r: "Reverse", f: "Flip", m: "Micro" };
 let val = Object.keys(glitches)[Math.floor(Math.random() * 12)];
 stateNode.safe = true;
-stateNode.props.liveGameController.setVal({ path: "c/" + stateNode.props.client.name + "/tat", val });
+setVal("c/" + stateNode.props.client.name + "/tat", val);
 alert("Sent a " + glitches[val] + " glitch");

@@ -1,10 +1,10 @@
 const player = prompt("Who's gold would you like to swap with? (Case sensitive)");
 stateNode.props.liveGameController.getDatabaseVal("c", (players) => {
     if (players && players[player] != null) {
-        const gold = players[player].g;
+        const gold = players[player].g || 0;
         setVal("c/" + stateNode.props.client.name, {
             b: stateNode.props.client.blook,
-            tat: player + ":swap:" + stateNode.state.gold,
+            tat: player + ":swap:" + (stateNode.state.gold || 0),
             g: gold
         });
         stateNode.setState({ gold, gold2: gold });

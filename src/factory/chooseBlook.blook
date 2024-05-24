@@ -3,6 +3,7 @@ const target = prompt("Enter blook name:").toLowerCase();
 const blook = window.factoryBlooks.find(blook => blook.name.toLowerCase() == target);
 if (blook) {
     if (stateNode.state.blooks.length >= 10) alert("Choose a blook to replace");
-    stateNode.chooseBlook(blook);
+    stateNode.waiting = false;
+    stateNode.chooseBlook(Object.assign({}, blook));
 }
 else alert("That is not a valid blook!");

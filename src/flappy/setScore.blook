@@ -1,1 +1,1 @@
-Object.values(queryElement("#phaser-bouncy"))[0].return.updateQueue.lastEffect.deps[1](prompNum("What do you want to set your score to?"));
+Object.values(queryElement("#phaser-bouncy"))[0].return.updateQueue.lastEffect.deps[1](promptNum("What do you want to set your score to?"));

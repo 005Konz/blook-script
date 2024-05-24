@@ -12,5 +12,5 @@ if (stateNode.state.question.qType != "typing") {
             if (found) break;
         }
         queryElementAll("[class*='answerContainer']")[ind].click();
-    } else queryElement("[class*='feedback'] :nth-child(1)").click();
+    } else queryElement("[class*='feedback'], [id*='feedback']").firstChild.click();
 } else elStateNode("[class*='typingAnswerWrapper']").sendAnswer(Question.answers[0]);

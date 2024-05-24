@@ -1,0 +1,28 @@
+if (stateNode.state.stage == "heist") {
+    const imgs = Array.prototype.map.call(Array.prototype.slice.call(queryElement("[class*=prizesList]").children, 1, 4), (x) => x.querySelector("img").src);
+    const esp = Object.values(queryElement("[class*=modal]"))[0].return.memoizedState.memoizedState;
+    Array.prototype.forEach.call(queryElementAll("[class*=boxContent] > div"), x => x.remove());
+    const open = Object.values(queryElement("[class*=modal]"))[0].return.memoizedState.next.next.memoizedState;
+    Array.prototype.forEach.call(queryElement("[class*=chestsWrapper]").children, (container, i) => {
+        const box = container.firstChild.firstChild;
+        if (open.includes(i)) return box.style.opacity = "";
+        box.style.opacity = "0.5";
+        let d = createElement("div", {
+            innerHTML: "<img src='" + imgs[2 - esp[i]] + "' style='max-width: 75%; max-height: 75%'></img>",
+            className: "chestESP",
+            style: {
+                position: "absolute",
+                inset: "0",
+                display: "grid",
+                placeItems: "center",
+                pointerEvents: "none"
+            }
+        });
+        container.onclick = () => {
+            d.remove();
+            box.style.opacity = "";
+        };
+        container.firstChild.prepend(d);
+    });
+    print({ imgs, esp, open });
+} else alert("You must be in a heist!");
