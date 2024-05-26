@@ -4,6 +4,7 @@ if (window.location.pathname == "/tower/map") {
         const data = x.split(",");
         return { strength: 20, charisma: 20, wisdom: 20, class: data[1], blook: data[0] };
     });
-    stateNode.props.addTowerNode();
     stateNode.setState({ showDeck: false });
+    stateNode.props.addTowerNode();
+    stateNode.forceUpdate();
 } else alert("You need to be on the map to run this cheat!");

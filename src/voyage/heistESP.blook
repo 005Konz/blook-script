@@ -24,5 +24,4 @@ if (stateNode.state.stage == "heist") {
         };
         container.firstChild.prepend(d);
     });
-    print({ imgs, esp, open });
 } else alert("You must be in a heist!");

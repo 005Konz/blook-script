@@ -1,2 +1,2 @@
-if (stateNode.state.phase == 'select') stateNode.setState({ myCard: Object.keys(stateNode.state.myCard).reduce((obj, key) => (obj[key] = obj[key] || stateNode.state.myCard[key], obj), { strength: 20, charisma: 20, wisdom: 20 }) });
+if (stateNode.state.phase == 'select') stateNode.setState({ myCard: Object.assign(Object.assign({}, stateNode.state.myCard), { strength: 20, charisma: 20, wisdom: 20 }) });
 else alert('You must be on the attribute selection page!');

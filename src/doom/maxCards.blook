@@ -1,6 +1,9 @@
-if (window.location.pathname == "/tower/map") stateNode.props.tower.cards.forEach(card => {
-    card.strength = 20;
-    card.charisma = 20;
-    card.wisdom = 20;
-});
+if (window.location.pathname == "/tower/map") {
+    stateNode.props.tower.cards.forEach(card => {
+        card.strength = 20;
+        card.charisma = 20;
+        card.wisdom = 20;
+    });
+    stateNode.forceUpdate();
+}
 else alert("You need to be on the map to run this cheat!");

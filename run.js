@@ -500,7 +500,7 @@ const toRun = "gold/setGold";
         true: true, false: false, null: null,
         setVal: (path, val) => stateNode().props.liveGameController?.setVal?.({ path, val }),
         print: log, console: i.contentWindow.console,
-        window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)), promptNum: (x) => parseInt(prompt(x)),
+        window, alert, confirm, prompt, promptFloat: (x) => parseFloat(prompt(x)) || 0, promptNum: (x) => parseInt(prompt(x)) || 0,
         isNaN, parseFloat, parseInt,
         Date, Object, Array, Math, Promise, Number, String,
         queryElement: document.querySelector.bind(document),
