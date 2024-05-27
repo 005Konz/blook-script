@@ -18,4 +18,4 @@ if (window.location.pathname.startsWith("/play/lobby")) {
     };
     stateNode.render();
     stateNode.setState({ blookData: Object.keys(blooks).reduce((a, b) => (a[b] = (stateNode.state.blookData[b] || 1), a), {}), allSets: Object.values(blooks).reduce((a, b) => (b.set && a.includes(b.set) ? a : a.concat(b.set)), []) });
-} else alert("This only works in lobbys or the dashboard blooks page.");
+} else alert("This only works in lobbies or the dashboard blooks page.");
